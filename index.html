@@ -998,19 +998,25 @@ const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Satur
 async function loadFromSupabase() {
   if(!currentUser) return;
   const uid = currentUser.id;
+  console.log('Loading: preferences...');
 
   // Theme/preferences
-  const { data: prefs } = await sb.from('preferences').select('*').eq('user_id', uid).single();
+  const { data: prefs, error: prefsErr } = await sb.from('preferences').select('*').eq('user_id', uid).single();
+  if(prefsErr) console.warn('Prefs error:', prefsErr.message);
   if(prefs) state.theme = prefs.theme || 'pink';
+  console.log('Loading: categories...');
 
   // Categories
-  const { data: cats } = await sb.from('categories').select('*').eq('user_id', uid).order('created_at');
+  const { data: cats, error: catsErr } = await sb.from('categories').select('*').eq('user_id', uid).order('created_at');
+  if(catsErr) console.warn('Categories error:', catsErr.message);
   if(cats && cats.length) state.categories = cats.map(c => c.name);
   state._categoryMap = {}; // name -> id
   if(cats) cats.forEach(c => state._categoryMap[c.name] = c.id);
+  console.log('Loading: tasks...');
 
   // Tasks + subtasks
-  const { data: tasks } = await sb.from('tasks').select('*, subtasks(*)').eq('user_id', uid).order('created_at');
+  const { data: tasks, error: tasksErr } = await sb.from('tasks').select('*, subtasks(*)').eq('user_id', uid).order('created_at');
+  if(tasksErr) console.warn('Tasks error:', tasksErr.message);
   if(tasks) {
     state.tasks = tasks.map(t => ({
       id: t.id,
@@ -1030,9 +1036,11 @@ async function loadFromSupabase() {
       }))
     }));
   }
+  console.log('Loading: notes...');
 
   // Notes
-  const { data: notes } = await sb.from('notes').select('*').eq('user_id', uid).order('created_at');
+  const { data: notes, error: notesErr } = await sb.from('notes').select('*').eq('user_id', uid).order('created_at');
+  if(notesErr) console.warn('Notes error:', notesErr.message);
   if(notes) {
     state.notes = notes.map(n => ({
       id: n.id,
@@ -1042,6 +1050,7 @@ async function loadFromSupabase() {
       createdAt: new Date(n.created_at).getTime()
     }));
   }
+  console.log('Loading: done!');
 }
 
 async function saveTheme() {
