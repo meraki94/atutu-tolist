@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zinlay's Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root {
   --pink-bg: #fff5f7;
@@ -918,7 +918,13 @@ body.dark .auth-success{background:#0a2010;border-color:#305030;color:#80d090}
 // ─── SUPABASE ────────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://wofwxpxnfogdngislaqh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_k8tz7msTwSKz4lggzuKjgQ_0oi_Hh5o';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
 
 let currentUser = null;
 
